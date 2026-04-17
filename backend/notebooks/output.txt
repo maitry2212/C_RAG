@@ -1,0 +1,105 @@
+Module 1 — Foundations of Generative AI 🚀
+Goal: Grasp  the  core  building  blocks:  Transformers,  Embeddings,  and  Diffusion  models.  Short,  clear
+definitions ✅ small code snippets (Python), short explanations, and quick ASCII visuals. Use this as a quick
+reference you can print or iterate on.
+1. Transformer (High-level) 🧠
+Easy definition: A Transformer is a neural architecture that processes tokens (words/subwords) using self-
+attention — it lets every token "look at" other tokens to build context.
+Why it's powerful: Parallelizable (faster training) and learns long-range dependencies via attention, not
+recurrence.
+Simple ASCII visual:
+Input:  [I] [love] [pizza] [because] [it] [is] [good]
+   \   |   /   \   |   /    attention weights -> context-rich vectors
+  Self-Attention -> Add & Norm -> Feed-Forward -> Output vectors
+Core pieces: -  Embedding: turn tokens → vectors -  Self-Attention: compute attention scores between
+tokens - Positional Encoding: gives order information - Feed-Forward (FFN): per-position MLP - Residual +
+LayerNorm: stabilizes training
+Mini formula (attention):
+Attention(Q,K,V) = softmax(QK^T / sqrt(d_k)) * V
+Where Q,K,V are queries, keys, and values (linear projections of embeddings).
+When to use: LLMs (GPT-style), encoders (BERT), encoder-decoder (T5).
+2. Embeddings (Short & Practical) 📏
+Definition: A  dense  vector  representing  a  word/sentence/document  so  semantic  similarity  ≈ vector
+similarity.
+Progression: Word2Vec  → Contextual  embeddings  (BERT)  → Sentence  embeddings  (sentence-
+transformers).
+1
+Quick example — compute sentence embeddings & similarity (Python):
+# pip install -U sentence-transformers
+from sentence_transformers import SentenceTransformer
+import numpy as np
+\model = SentenceTransformer('all-MiniLM-L6-v2')
+# small, fast
+sentences = [
+"I love pizza.",
+"Pizza is my favorite food.",
+"The sky is blue."
+]
+embs = model.encode(sentences)
+# cosine similarity between sentence 0 and 1
+def cosine(a,b):
+return np.dot(a,b) / (np.linalg.norm(a)*np.linalg.norm(b))
+print(cosine(embs[0], embs[1]))
+# high (~0.8)
+print(cosine(embs[0], embs[2]))
+# low (~0.1)
+Tip: Use embeddings for semantic search, clustering, recommendations.
+3. Diffusion Models (Image gen, in short) 🎨
+Definition: Diffusion models generate images by reversing a gradual noising process — they learn to
+denoise step-by-step from pure noise to an image.
+Intuition: Start with random noise → repeatedly apply a learned denoiser conditioned on a prompt → get a
+coherent image.
+Popular libraries: diffusers  (Hugging Face), Stable Diffusion models.
+Minimal example (conceptual code):
+# pip install diffusers accelerate transformers safetensors
+from diffusers import StableDiffusionPipeline
+pipe = StableDiffusionPipeline.from_pretrained(
+'runwayml/stable-diffusion-v1-5',
+torch_dtype='float16'
+)
+pipe = pipe.to('cuda')
+image = pipe("a cute robot reading a book, pastel colors",
+2
+guidance_scale=7.5).images[0]
+image.save('robot.png')
+Notes: - guidance_scale  controls how strongly image follows the prompt. - Models can be large — use
+model variants ("mini") for experimentation.
+4. Small end-to-end example: Text summarizer (Hugging Face
+pipelines) 📝
+Idea: Use a transformer model to summarize text in 2 lines.
+# pip install transformers
+from transformers import pipeline
+summarizer = pipeline('summarization', model='sshleifer/distilbart-cnn-12-6')
+text = "Long article..."
+print(summarizer(text, max_length=60, min_length=20)[0]['summary_text'])
+Why short: pipelines hide tokenization, model loading — perfect for learning and prototyping.
+5. Short glossary (one-liners) 🔖
+Token: Smallest model input unit (often subword).
+Attention head: One parallel attention computation — multiple heads capture different relations.
+Embedding dim (d): Size of token vectors.
+Latent diffusion: Diffusion in compressed latent space (faster, used by Stable Diffusion).
+Prompt: Text instructions for conditional generation.
+6. Exercises (tiny, 10–20 min each) ✅
+Transformer sketch: Draw blocks for embedding → attention → FFN for a 2-layer transformer on a
+piece of paper. Label residuals.
+Embeddings check: Run the sentence-transformers example with 5 of your messages — see which
+are closest.
+Summarize an article: Use the pipeline summarizer on a news paragraph and compare with a
+human summary.
+Prompt experiment: Try 3 prompts with Stable Diffusion: short prompt, detailed prompt, and style
+prompt — compare outputs.
+• 
+• 
+• 
+• 
+• 
+1. 
+2. 
+3. 
+4. 
+3
+If you want, I can: - Create Module 2: Prompt Engineering & Applications next (with concise code + agent
+examples), - Or convert these notes into a printable PDF / Google Slides.
+Tell me which you'd like next: Module 2 or PDF/Slides — I’ll prepare it module-wise. ✨
+4
+

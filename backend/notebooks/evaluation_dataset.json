@@ -1,0 +1,34 @@
+[
+    {
+        "question": "What is the purpose of the MSME & ONDC onboarding system?",
+        "ground_truth": "It helps small businesses automatically upload documents, extract information using AI, and complete ONDC registration quickly."
+    },
+    {
+        "question": "Who can use this system?",
+        "ground_truth": "Small business owners, MSMEs, entrepreneurs starting online selling, and traditional sellers going digital."
+    },
+    {
+        "question": "What types of businesses can use the platform?",
+        "ground_truth": "Street vendors, local shops, small factories, and online-only stores."
+    },
+    {
+        "question": "Which document proves business registration?",
+        "ground_truth": "The Udyam Certificate."
+    },
+    {
+        "question": "What information is extracted from an Aadhaar card?",
+        "ground_truth": "Name, date of birth, and gender."
+    },
+    {
+        "question": "What information is extracted from a PAN card?",
+        "ground_truth": "PAN number and the name on the card."
+    },
+    {
+        "question": "What details are extracted from a bank passbook?",
+        "ground_truth": "Account number, IFSC code, and bank name."
+    },
+    {
+        "question": "Which document is optional for onboarding?",
+        "ground_truth": "GST Certificate."
+    }
+]

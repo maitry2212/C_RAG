@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>TW Test</title></head>
+<body>
+<script>
+  fetch('http://localhost:5173/src/index.css')
+    .then(r => r.text())
+    .then(css => {
+      // Check if specific classes exist
+      const checks = ['bg-card', 'text-txt', 'border-subtle', 'bg-surface', 'bg-primary'];
+      checks.forEach(cls => {
+        const found = css.includes(cls);
+        console.log(`${cls}: ${found ? 'FOUND' : 'MISSING'}`);
+      });
+      console.log('CSS length:', css.length);
+      // Show first 2000 chars
+      console.log(css.substring(0, 2000));
+    });
+</script>
+</body>
+</html>

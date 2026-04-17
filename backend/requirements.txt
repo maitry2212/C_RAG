@@ -1,0 +1,27 @@
+# FastAPI & server
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+
+# Text extraction
+pymupdf4llm
+docling
+beautifulsoup4
+requests
+youtube-transcript-api
+
+# LLM & RAG
+langchain-core
+langchain-groq
+langchain-text-splitters
+langchain-community
+langgraph
+groq
+
+# Embeddings & Vector store
+sentence-transformers
+qdrant-client
+
+# Tavily web search
+tavily-python

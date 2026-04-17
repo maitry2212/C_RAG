@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+/* ── Register custom theme colors for TW v4 ───── */
+@theme {
+  --color-base: #02000f;
+  --color-surface: #0a081c;
+  --color-card: #121028;
+  --color-card-hover: #1b1836;
+  --color-subtle: #2b274e;
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #a78bfa;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-txt: #f8fafc;
+  --color-txt-sec: #94a3b8;
+  --color-txt-muted: #475569;
+}
+
+/* ── Global reset ──────────────────────────────── */
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-base);
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.1), transparent 25%);
+  color: var(--color-txt);
+  overflow: hidden;
+}
+
+/* ── Scrollbar styling ─────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-subtle);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-txt-muted);
+}
+
+/* ── React Flow overrides ──────────────────────── */
+.react-flow__background {
+  background: transparent !important;
+}
+
+.react-flow__minimap {
+  background: var(--color-card) !important;
+  border-radius: 8px;
+  border: 1px solid var(--color-subtle) !important;
+}
+
+.react-flow__controls {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-subtle) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+.react-flow__controls button {
+  background: transparent !important;
+  color: var(--color-txt-sec) !important;
+  border-color: var(--color-subtle) !important;
+  transition: all 0.2s;
+}
+
+.react-flow__controls button:hover {
+  background: var(--color-card-hover) !important;
+  color: var(--color-txt) !important;
+}
+
+/* ── Animated edge dash ────────────────────────── */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.react-flow__edge-path.animated-edge {
+  stroke-dasharray: 5 5;
+  animation: dash-flow 0.6s linear infinite;
+}
+
+/* ── Custom node styles ────────────────────────── */
+.crag-node {
+  padding: 14px 22px;
+  border-radius: 14px;
+  border: 1px solid var(--color-subtle);
+  background: linear-gradient(180deg, var(--color-card) 0%, var(--color-surface) 100%);
+  color: var(--color-txt);
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 170px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.crag-node:hover {
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.crag-node.status-idle {
+  border-color: var(--color-subtle);
+}
+
+.crag-node.status-running {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+}
+
+.crag-node.status-completed {
+  border-color: var(--color-success);
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.2);
+}
+
+.crag-node.status-error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+}
+
+/* ── Pulse for running nodes ───────────────────── */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+  }
+}
+
+.crag-node.status-running {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* ── Tooltip ───────────────────────────────────── */
+.node-tooltip {
+  position: absolute;
+  z-index: 100;
+  background: rgba(18, 16, 40, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-subtle);
+  border-radius: 14px;
+  padding: 16px 20px;
+  min-width: 280px;
+  max-width: 400px;
+  max-height: 340px;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  font-size: 13px;
+}
