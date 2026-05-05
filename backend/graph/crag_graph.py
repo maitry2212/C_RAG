@@ -44,6 +44,7 @@ llm = ChatGroq(
 # -------------------------------------------------------------------
 class State(TypedDict):
     question: str
+    user_id: int
 
     docs: List[Document]
     good_docs: List[Document]
@@ -70,10 +71,11 @@ def retrieve_node(state: State) -> State:
     emd_model = get_embedding_model()
     query_vector = emd_model.encode_query(q)
 
-    from services.vectorstore import get_client, COLLECTION_NAME
+    from services.vectorstore import get_client
     client = get_client()
+    collection_name = f"user_{state['user_id']}"
     results = client.query_points(
-        collection_name=COLLECTION_NAME,
+        collection_name=collection_name,
         query=query_vector,
         limit=RET_LIMIT
     )
@@ -347,7 +349,7 @@ def get_crag_graph():
 _last_run_node_states: Dict[str, Dict[str, Any]] = {}
 
 
-def run_crag_pipeline(question: str) -> dict:
+def run_crag_pipeline(question: str, user_id: int) -> dict:
     """
     Run the CRAG pipeline and return the final state.
     Tracks input/output states of each node.
@@ -359,6 +361,7 @@ def run_crag_pipeline(question: str) -> dict:
 
     initial_state = {
         "question": question,
+        "user_id": user_id,
         "docs": [],
         "good_docs": [],
         "verdict": "",

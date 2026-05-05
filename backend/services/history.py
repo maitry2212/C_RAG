@@ -1,51 +1,54 @@
-import sqlite3
-import os
+"""
+history.py — Persist and retrieve query history in NeonDB (PostgreSQL).
+
+Replaces the old SQLite-based implementation.
+"""
+
 from typing import List, Dict
-from datetime import datetime
+from core.database import get_connection
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "chat_history.db")
 
-def init_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            question TEXT NOT NULL,
-            answer TEXT NOT NULL,
-            verdict TEXT,
-            reason TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
+def save_query(
+    chat_id: int,
+    user_id: int,
+    question: str,
+    answer: str,
+    verdict: str = None,
+    reason: str = None,
+) -> None:
+    """Insert one Q&A record into the NeonDB history table."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO query_history (chat_id, user_id, question, answer, verdict, reason)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (chat_id, user_id, question, answer, verdict, reason),
+            )
+        conn.commit()
+    finally:
+        conn.close()
 
-def save_query(question: str, answer: str, verdict: str = None, reason: str = None):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO history (question, answer, verdict, reason)
-        VALUES (?, ?, ?, ?)
-    ''', (question, answer, verdict, reason))
-    conn.commit()
-    conn.close()
 
-def get_history(limit: int = 20) -> List[Dict]:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT question, answer, verdict, reason, timestamp
-        FROM history
-        ORDER BY timestamp DESC
-        LIMIT ?
-    ''', (limit,))
-    rows = cursor.fetchall()
-    conn.close()
-    
-    return [dict(row) for row in rows]
-
-# Initialize on import
-init_db()
+def get_history(user_id: int, limit: int = 20) -> List[Dict]:
+    """Return the most recent *limit* Q&A records for a specific user from NeonDB."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT question, answer, verdict, reason, created_at AS timestamp
+                FROM query_history
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s
+                """,
+                (user_id, limit),
+            )
+            rows = cur.fetchall()
+        # RealDictCursor already returns dict-like rows; cast for safety
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, Loader2, MessageSquare, BookOpen, Sparkles, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { queryPipeline, getQueryHistory } from '../services/api';
 
-export default function QueryPanel({ onQueryResult, isIngested }) {
+export default function QueryPanel({ onQueryResult, isIngested, chatId }) {
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -12,12 +12,18 @@ export default function QueryPanel({ onQueryResult, isIngested }) {
   const inputRef = useRef();
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (chatId) {
+      fetchHistory();
+    } else {
+      setHistory([]);
+      setResult(null);
+    }
+  }, [chatId]);
 
   const fetchHistory = async () => {
+    if (!chatId) return;
     try {
-      const res = await getQueryHistory();
+      const res = await getQueryHistory(chatId);
       setHistory(res.data);
     } catch (err) {
       console.error('Failed to fetch history', err);
@@ -32,7 +38,7 @@ export default function QueryPanel({ onQueryResult, isIngested }) {
     onQueryResult?.({ status: 'running' });
 
     try {
-      const res = await queryPipeline(question.trim());
+      const res = await queryPipeline(chatId, question.trim());
       setResult(res.data);
       onQueryResult?.({ status: 'done', data: res.data });
       fetchHistory(); // Refresh history after new query
@@ -99,16 +105,15 @@ export default function QueryPanel({ onQueryResult, isIngested }) {
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={4}
-                placeholder={isIngested ? "What would you like to know?" : "Ingest data first..."}
-                disabled={!isIngested}
-                className="w-full bg-surface/50 border border-subtle/60 rounded-xl px-4 py-3 text-sm text-txt placeholder:text-txt-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none disabled:opacity-40 disabled:cursor-not-allowed shadow-inner"
+                placeholder="What would you like to know?"
+                className="w-full bg-surface/50 border border-subtle/60 rounded-xl px-4 py-3 text-sm text-txt placeholder:text-txt-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none shadow-inner"
               />
             </div>
 
             {/* Ask button */}
             <button
               onClick={handleAsk}
-              disabled={loading || !isIngested || !question.trim()}
+              disabled={loading || !question.trim() || !chatId}
               className="w-full py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(139,92,246,0.39)] hover:shadow-[0_6px_20px_rgba(139,92,246,0.23)] hover:-translate-y-0.5"
             >
               {loading ? (

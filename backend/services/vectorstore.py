@@ -12,7 +12,6 @@ from qdrant_client.models import VectorParams, Distance, PointStruct
 from services.embedding import encode_documents, encode_query
 
 # Qdrant client
-COLLECTION_NAME = "documents"
 VECTOR_SIZE = 384  # all-MiniLM-L6-v2 output dim
 
 # Persistent local path
@@ -26,17 +25,21 @@ def get_client() -> QdrantClient:
     """Return the singleton Qdrant persistent client."""
     global _client
     if _client is None:
-        _client = QdrantClient(path=DB_PATH)
+        _client = QdrantClient(
+    url=os.getenv("QDRANT_URL"), 
+    api_key=os.getenv("QDRANT_API_KEY"),
+)
+
     return _client
 
 
-def _ensure_collection():
+def _ensure_collection(collection_name: str):
     """Create the collection if it doesn't exist."""
     client = get_client()
     collections = [c.name for c in client.get_collections().collections]
-    if COLLECTION_NAME not in collections:
+    if collection_name not in collections:
         client.create_collection(
-            collection_name=COLLECTION_NAME,
+            collection_name=collection_name,
             vectors_config=VectorParams(
                 size=VECTOR_SIZE,
                 distance=Distance.COSINE
@@ -53,11 +56,12 @@ def reset_collection():
     _ensure_collection()
 
 
-def store_chunks(chunks: List[str]):
+def store_chunks(chunks: List[str], user_id: int):
     """
-    Encode chunks and store them in Qdrant.
+    Encode chunks and store them in Qdrant for a specific user.
     """
-    _ensure_collection()
+    collection_name = f"user_{user_id}"
+    _ensure_collection(collection_name)
     client = get_client()
 
     emd_docs = encode_documents(chunks)
@@ -72,25 +76,26 @@ def store_chunks(chunks: List[str]):
     ]
 
     client.upsert(
-        collection_name=COLLECTION_NAME,
+        collection_name=collection_name,
         points=points
     )
 
     return len(points)
 
 
-def query_vectors(query: str, limit: int = 3):
+def query_vectors(query: str, user_id: int, limit: int = 3):
     """
     Query the vector store.
     Exact logic from Notebook 3.
     """
-    _ensure_collection()
+    collection_name = f"user_{user_id}"
+    _ensure_collection(collection_name)
     client = get_client()
 
     query_vector = encode_query(query)
 
     results = client.query_points(
-        collection_name=COLLECTION_NAME,
+        collection_name=collection_name,
         query=query_vector,
         limit=limit
     )

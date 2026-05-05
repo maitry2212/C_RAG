@@ -1,16 +1,17 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from schemas.request_models import QueryRequest
 from schemas.response_models import QueryResponse
 from graph.crag_graph import run_crag_pipeline
 from services.history import save_query, get_history
+from api.auth import get_current_user
 
 router = APIRouter()
 
 
 @router.post("/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
+async def query(request: QueryRequest, user_id: int = Depends(get_current_user)):
     """
     Run the CRAG graph pipeline for a user question.
     Returns the final answer along with pipeline metadata.
@@ -19,7 +20,7 @@ async def query(request: QueryRequest):
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
     try:
-        result = run_crag_pipeline(request.question)
+        result = run_crag_pipeline(request.question, user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline error: {str(e)}")
 
@@ -35,7 +36,7 @@ async def query(request: QueryRequest):
     reason = result.get("reason", "")
 
     # Save to history
-    save_query(request.question, answer, verdict, reason)
+    save_query(request.chat_id, user_id, request.question, answer, verdict, reason)
 
     return QueryResponse(
         answer=answer,
@@ -48,6 +49,6 @@ async def query(request: QueryRequest):
 
 
 @router.get("/history")
-async def fetch_history():
-    """Returns the last 20 questions and answers."""
-    return get_history()
+async def fetch_history(user_id: int = Depends(get_current_user)):
+    """Returns the last 20 questions and answers for the authenticated user."""
+    return get_history(user_id)

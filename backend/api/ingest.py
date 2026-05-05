@@ -5,8 +5,9 @@ POST /ingest — accepts file upload or URL.
 
 import os
 import tempfile
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from typing import Optional
+from api.auth import get_current_user
 import sys
 import asyncio
 
@@ -32,6 +33,7 @@ async def ingest(
     file: Optional[UploadFile] = File(None),
     url: Optional[str] = Form(None),
     source_type: Optional[str] = Form(None),
+    user_id: int = Depends(get_current_user),
 ):
     """
     Ingest a document by file upload or URL.
@@ -93,7 +95,7 @@ async def ingest(
         raise HTTPException(status_code=422, detail="No chunks generated from the text.")
 
     # Step 4: Store embeddings persistently
-    num_stored = store_chunks(chunks)
+    num_stored = store_chunks(chunks, user_id)
 
     return IngestResponse(
         status="success",

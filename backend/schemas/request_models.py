@@ -9,6 +9,7 @@ from typing import Optional
 class QueryRequest(BaseModel):
     """Request body for the /query endpoint."""
     question: str = Field(..., description="The user's question")
+    chat_id: int = Field(..., description="The context chat session id")
 
 
 class URLIngestRequest(BaseModel):

@@ -4,6 +4,14 @@ uvicorn[standard]
 python-multipart
 python-dotenv
 
+# Database (NeonDB / PostgreSQL)
+psycopg2-binary
+
+# Authentication
+PyJWT
+bcrypt
+pydantic[email]
+
 # Text extraction
 pymupdf4llm
 docling

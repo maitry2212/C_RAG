@@ -1,8 +1,21 @@
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
   timeout: 120000,
+});
+
+api.interceptors.request.use((config) => {
+  const stored = localStorage.getItem('auth');
+  if (stored) {
+    const { access_token } = JSON.parse(stored);
+    if (access_token) {
+      config.headers.Authorization = `Bearer ${access_token}`;
+    }
+  }
+  return config;
 });
 
 // ── Health ─────────────────────────────────────
@@ -25,11 +38,15 @@ export const ingestURL = (url, type) => {
   return api.post('/ingest', form);
 };
 
-// ── Query ──────────────────────────────────────
-export const queryPipeline = (question) =>
-  api.post('/query', { question });
+// ── Chat & Query ───────────────────────────────
+export const getChats = () => api.get('/chats/');
+export const createChat = (title) => api.post('/chats/', { title });
+export const deleteChat = (chatId) => api.delete(`/chats/${chatId}`);
 
-export const getQueryHistory = () => api.get('/history');
+export const queryPipeline = (chatId, question) =>
+  api.post('/query', { chat_id: chatId, question });
+
+export const getQueryHistory = (chatId) => api.get(`/chats/${chatId}/history`);
 
 // ── Graph structure ────────────────────────────
 export const getGraphNodes = () => api.get('/graph/nodes');
