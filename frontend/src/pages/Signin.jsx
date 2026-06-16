@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Cpu, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 export default function Signin() {
   const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ export default function Signin() {
     setError('');
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/signin', { email, password });
+      const res = await api.post('/auth/signin', { email, password });
       login(res.data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Signin failed');

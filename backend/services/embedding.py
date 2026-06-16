@@ -30,4 +30,4 @@ def encode_documents(texts: list[str]) -> list:
 def encode_query(query: str):
     """Encode a single query for retrieval."""
     model = get_embedding_model()
-    return model.encode_query(query)
+    return model.encode(query)

@@ -2,6 +2,9 @@ import os
 from datetime import datetime, timedelta, timezone
 import jwt
 import bcrypt
+from dotenv import load_dotenv
+
+load_dotenv()
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:

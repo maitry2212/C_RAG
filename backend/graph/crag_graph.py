@@ -68,17 +68,8 @@ class State(TypedDict):
 # -------------------------------------------------------------------
 def retrieve_node(state: State) -> State:
     q = state["question"]
-    emd_model = get_embedding_model()
-    query_vector = emd_model.encode_query(q)
-
-    from services.vectorstore import get_client
-    client = get_client()
-    collection_name = f"user_{state['user_id']}"
-    results = client.query_points(
-        collection_name=collection_name,
-        query=query_vector,
-        limit=RET_LIMIT
-    )
+    from services.vectorstore import query_vectors
+    results = query_vectors(q, state["user_id"], limit=RET_LIMIT)
     return {"docs": [Document(page_content=p.payload["text"], metadata={"id": p.id}) for p in results.points]}
 
 

@@ -33,3 +33,8 @@ qdrant-client
 
 # Tavily web search
 tavily-python
+
+# Web Scraping & Crawling
+crawl4ai
+playwright
+lxml
